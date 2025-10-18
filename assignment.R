@@ -1,5 +1,3 @@
-setwd("C:/Users/kissl/Desktop/Corvinus/Öko")
-
 library(stargazer)
 library(tidyverse)
 library(ggthemes)
@@ -19,7 +17,7 @@ table(df$Company)
 
 
 
-
+# big cica, big madafakin cica
 
 
 
