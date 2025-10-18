@@ -50,6 +50,8 @@ summary(model2)
 model20 <- lm(df$gas_avg ~ df$highway_dummy + df$budapest_dummy)
 summary(model20)
 
+# ggs
+
 
 
 
