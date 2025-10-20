@@ -8,6 +8,7 @@ library(lmtest)
 library(car)
 library(readxl)
 
+windowsFonts(Times = windowsFont("Times New Roman"))
 
 #######################################
 # Data importing and variable making #
@@ -24,6 +25,12 @@ df <- df |>
   group_by(adress, city, company) |>
   summarise(diesel_avg = mean(diesel),
             gas_avg = mean(gas))
+
+summary(df$gas_avg)
+summary(df$diesel_avg)
+
+df <- df[!is.na(df$diesel_avg),]
+df <- df[!is.na(df$gas_avg),]
 
 # making chategories based on the company
 
@@ -135,9 +142,81 @@ rm(dgh)
 # Data visualization #
 #####################
 
+ggplot(data = df, aes(x = company_f, fill = company_f)) +
+  geom_bar()+
+  labs(title = "Number of petrol stations for the companies",
+       y = "Number of stations",
+       x = "Company") +
+  scale_y_continuous(breaks = seq(from = 0, to = 400, by = 50))+
+  theme_bw(base_family = "Times") +
+  theme(legend.position = "none",
+        title = element_text(size = 16),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y = element_text(margin = margin(r = 10)))
 
-# UNDER CONSTRUCTION
 
+ggplot(data = df, aes(x = company_f, y = diesel_avg, colour = company_f)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of the diesel price for the companies",
+       y = "Weekly average of diesel price (HUF)",
+       x = "Company") +
+  scale_y_continuous(breaks = seq(from = 550, to = 675, by = 25))+
+  theme_bw(base_family = "Times") +
+  theme(legend.position = "none",
+        title = element_text(size = 15),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y = element_text(margin = margin(r = 10)))
+
+
+ggplot(data = df, aes(x = company_f, y = gas_avg, colour = company_f)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of the gasoline price for the companies",
+       y = "Weekly average of gasoline price (HUF)",
+       x = "Company") +
+  scale_y_continuous(breaks = seq(from = 550, to = 675, by = 25))+
+  theme_bw(base_family = "Times")+
+  theme(legend.position = "none",
+        title = element_text(size = 15),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y = element_text(margin = margin(r = 10)))
+
+
+
+ggplot(data = df, aes(x = as.factor(highway_dummy), y = gas_avg)) +
+  geom_boxplot(color = "navy", fill = "lightblue") +
+  labs(title = "Boxplot of the gasoline price if the station is on a motorway",
+       y = "Weekly average of gasoline price (HUF)",
+       x = "Company") +
+  scale_x_discrete(labels = c("Not on motorway", "On motorway"))+
+  theme_bw(base_family = "Times")+
+  theme(legend.position = "none",
+        title = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y = element_text(margin = margin(r = 10)))
+
+
+
+ggplot(data = df, aes(x = as.factor(highway_dummy), y = diesel_avg)) +
+  geom_boxplot(color = "navy", fill = "lightblue") +
+  labs(title = "Boxplot of the diesel price if the station is on a motorway",
+       y = "Weekly average of diesel price (HUF)",
+       x = "Company") +
+  scale_x_discrete(labels = c("Not on motorway", "On motorway"))+
+  theme_bw(base_family = "Times")+
+  theme(legend.position = "none",
+        title = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y = element_text(margin = margin(r = 10)))
 
 #################
 ### MODELING ###
@@ -200,7 +279,6 @@ anova(model2_g, model3_g, model4_g)
 
 AIC(model2_g, model3_g, model4_g)
 BIC(model2_g, model3_g, model4_g)
-
 
 
 
