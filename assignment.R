@@ -7,6 +7,7 @@ library(ggplot2)
 library(lmtest)
 library(car)
 library(readxl)
+library(modelsummary)
 
 windowsFonts(Times = windowsFont("Times New Roman"))
 
@@ -138,6 +139,11 @@ rm(df_na)
 rm(cty)
 rm(dgh)
 
+#### Descriptive statistics
+
+datasummary(diesel_avg + gas_avg ~ mean + sd + min + max + IQR, data = df)
+
+
 #######################
 # Data visualization #
 #####################
@@ -238,10 +244,13 @@ summary(model1_g)
 model2_d <- lm(diesel_avg ~ company_f + highway_dummy + budapest_dummy, data = df)
 summary(model2_d)
 
+bptest(model2_d)
+
 # gas
 model2_g <- lm(gas_avg ~ company_f + highway_dummy + budapest_dummy, data = df)
 summary(model2_g)
 
+bptest(model2_g)
 
 ### model 3: adding the car / 1000 people
 
@@ -250,10 +259,13 @@ summary(model2_g)
 model3_d <- lm(diesel_avg ~ company_f + highway_dummy + budapest_dummy + car_per_p, data = df)
 summary(model3_d)
 
+bptest(model3_d)
+
 # gas
 model3_g <- lm(gas_avg ~ company_f + highway_dummy + budapest_dummy + car_per_p, data = df)
 summary(model3_g)
 
+bptest(model3_g)
 
 ### model 4: adding the average wage of the county 
 
@@ -262,11 +274,15 @@ summary(model3_g)
 model4_d <- lm(diesel_avg ~ company_f + highway_dummy + budapest_dummy + car_per_p + avg_wage, data = df)
 summary(model4_d)
 
+bptest(model4_d)
+
 # gas
 model4_g <- lm(gas_avg ~ company_f + highway_dummy + budapest_dummy + car_per_p + avg_wage, data = df)
 summary(model4_g)
 
+bptest(model4_g)
 
+# All Breusch-Pagan test say that the standard errors are heteroscedastic
 
 ### Model selection ####
 
@@ -280,6 +296,20 @@ anova(model2_g, model3_g, model4_g)
 AIC(model2_g, model3_g, model4_g)
 BIC(model2_g, model3_g, model4_g)
 
+# the anova functions suggest, that adding the average wage for the counties
+# doesn't make the model better.
+# there isn't a huge difference in the AIC and BIC scores of the models', 
+# but the best seems to be model3 for both Y variables
 
+# outputting the table with the heteroscedasticity-robust standard errors.
+ct_d <- coeftest(model3_d, vcov = hccm)
+ct_g <- coeftest(model3_g, vcov = hccm)
+
+
+stargazer(model3_d, model3_g, type = "text",
+          coef = list(ct_d[,1], ct_g[,1]),
+          se = list(ct_d[,2], ct_g[,2]),
+          out = "reg_table.txt"
+)
 
 
